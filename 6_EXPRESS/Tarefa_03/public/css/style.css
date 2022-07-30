@@ -1,0 +1,11 @@
+body {
+    background-color: aquamarine;
+    text-align: center;
+    padding: 2em;
+}
+
+h1{
+    color: red;
+    font-size: 36px;
+    font-family: Arial, Helvetica, sans-serif;
+}
