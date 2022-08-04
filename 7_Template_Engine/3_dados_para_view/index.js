@@ -12,6 +12,7 @@ app.get('/', (req, res)=>{
         sobrenome: 'Santos'
     }
     res.render('home', {user: user})
+   
 })
 
 app.listen(3000,()=>{
