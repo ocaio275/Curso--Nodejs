@@ -7,6 +7,7 @@ const app = express()
 const conn = require('./db/conn')
 
 const User = require('./models/User')
+const Address = require('./models/Address')
 
 app.use(express.urlencoded({
     extended: true
@@ -60,9 +61,15 @@ app.post('/users/delete/:id', async (req, res) => {
 app.get('/users/edit/:id', async (req, res) => {
     const id = req.params.id
 
-    const user = await User.findOne({ raw: true, where: { id: id } })
+    try {
 
-    res.render('useredit', { user })
+        const user = await User.findOne({ include: Address, where: { id: id } })
+
+        res.render('useredit', { user: user.get({ plain: true }) })
+    } catch (error) {
+        console.log("🚀 ~ file: index.js ~ line 70 ~ app.get ~ error", error)
+
+    }
 })
 
 app.post('/users/update', async (req, res) => {
@@ -92,10 +99,35 @@ app.get('/', async (req, res) => {
     res.render('home', { users: users })
 })
 
+app.post('/address/create', async (req, res) => {
+    const { UserId, street, number, city } = req.body
+
+    const address = {
+        UserId,
+        street,
+        number,
+        city
+    }
+
+    await Address.create(address)
+    res.redirect(`/users/edit/${UserId}`)
+})
+
+
+app.post('/address/delete' , async (req, res)=>{
+
+    const {id, UserId} = req.body
+
+    await Address.destroy({
+        where:{ id: id}
+    })
+
+    res.redirect(`/users/edit/${UserId}`)
+})
 
 conn
     .sync()
-    // .sync({force: true})
+    //.sync({force: true})
     .then(() => {
         app.listen(3000)
     }).catch((err) => console.log(err))
