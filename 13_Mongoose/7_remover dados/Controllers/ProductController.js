@@ -2,7 +2,7 @@ const Product = require('../Models/Product')
 
 module.exports = class ProductController {
     static async showProducts(req, res) {
-        const products = await Product.getProducts()
+        const products = await Product.find().lean()
         res.render('products/all', { products })
     }
     static async createProduct(req, res) {
@@ -11,17 +11,17 @@ module.exports = class ProductController {
     static async showProductsPost(req, res) {
         const { name, image, price, description } = req.body
 
-        const product = new Product(name, image, price, description)
+        const product = new Product({ name, image, price, description })
 
-        product.save()
+        await product.save()
 
         res.redirect('/products')
     }
 
-    static async getProduct(req, res){
+    static async getProduct(req, res) {
         const id = req.params.id
 
-        const product = await Product.getProductByID(id)
+        const product = await Product.findById(id).lean()
 
         res.render('products/product', { product })
     }
@@ -29,26 +29,26 @@ module.exports = class ProductController {
     static async deleteProduct(req, res){
         const id = req.params.id
 
-         await Product.deleteProductByID(id)
+        await Product.deleteOne({_id:id})
 
         res.redirect('/products')
     }
 
-    static async editProduct(req, res){
+    static async editProduct(req, res) {
         const id = req.params.id
-        
-        const product = await Product.getProductByID(id)
+
+        const product = await Product.findById(id).lean()
 
         res.render('products/edit', { product })
     }
 
-    static async editProductPost(req, res){
+    static async editProductPost(req, res) {
 
         const { id, name, image, price, description } = req.body
 
-        const product = new Product(name, image, price, description)
+        const product = { name, image, price, description }
 
-        await product.updateProduct(id)
+        await Product.updateOne({ _id: id }, product)
 
         res.redirect('/products')
     }
